@@ -21,7 +21,9 @@ make -j
 
 ### Overview
 
-![bunny](overview/bunny.gif)
+<p align="center">
+   <img src="overview/bunny.gif" width="450px">
+</p>
 
 ### Commands
 
