@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
-  printf("===== vpbrt version % =====]\n", VERSION);
+  printf("===== vpbrt version %s =====\n", VERSION);
 
   // chargement de la scène
   curScene=curloader.load(argv[1]);
