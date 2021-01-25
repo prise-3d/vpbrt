@@ -6,6 +6,7 @@
 Mesh::Mesh(){
   bb.min.x = bb.min.y = bb.min.z = 1.e100;
   bb.max.x = bb.max.y = bb.max.z = -1.e100;
+  mat = nullptr;
 }
 
 Mesh::~Mesh(){
@@ -20,6 +21,12 @@ void  Mesh::add(const Point3f &s){
 
 void Mesh::add(const Face &f){
   faces.push_back(f);
+}
+
+GLmaterial Mesh::getGLmaterial(){
+  if(!mat) return GLmaterial();
+
+  return mat->getGLmaterial();
 }
 
 
@@ -49,14 +56,16 @@ ostream& operator<<(ostream &out, const Mesh &m){
 
 
 void Mesh::draw(){
+  
+  GLmaterial mat = getGLmaterial();
 
+  glColor4f(mat.kd.r, mat.kd.g, mat.kd.b, mat.kd.a);
+  
   for(unsigned int i=0; i<faces.size(); i++){
-    //glBegin(GL_LINE_LOOP);
     glBegin(GL_TRIANGLES);
     for(unsigned int s=0; s<3; s++){
       Point3f som=sommets[faces[i].isom[s]];
       glVertex3f(som.x, som.y, som.z);
-      // if(i==0) cout << "(" << som.x << "," << som.y << "," << som.z << ")" << endl;
     }
     glEnd();
 
@@ -66,7 +75,10 @@ void Mesh::draw(){
 
 
 void Mesh::draw(const Transform &t){
+  GLmaterial mat = getGLmaterial();
 
+  glColor4f(mat.kd.r, mat.kd.g, mat.kd.b, mat.kd.a);
+  
   for(unsigned int i=0; i<faces.size(); i++){
     glBegin(GL_LINE_LOOP);
     for(unsigned int s=0; s<3; s++){

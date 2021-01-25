@@ -29,7 +29,9 @@ private :
   // liste des systèmes de coordonnées nommés
   vector <SysCoord *> sysCoord;
   // liste des matériaux nommés
-  vector <Material *> Materials;
+  vector <Material *> materiaux;
+  // materiau courant
+  Material *curMat;
   
 public:
   PbrtLoader();
@@ -39,6 +41,7 @@ public:
 
 private:
   void loadShape(ifstream &in, const string& path, Scene *scene, Objet *cur);
+  void loadCylinder(ifstream &in, const string& path, Scene *scene, Objet *cur);
   void loadPlymesh(ifstream &in, const string& path, Scene *scene, Objet *cur);
   void loadTriangleMesh(ifstream &in, const string& path, Scene *scene, Objet *cur);
   // void transformer(Vector4 &v);

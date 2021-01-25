@@ -68,6 +68,7 @@ struct Vector4 {
 
   friend std::ostream &operator<<(std::ostream &os, const Vector4 &v) {
     os << "("  << v.x << ","  <<  v.y << "," << v.z << "," << v.t << ")";
+    return os;
   }
   
 };
@@ -85,6 +86,7 @@ struct Vector3f {
 
   friend std::ostream &operator<<(std::ostream &os, const Vector3f &v) {
     os << "("  << v.x << ","  <<  v.y << "," << v.z <<  ")";
+    return os;
   }
 
   float Length() const{
@@ -111,6 +113,7 @@ struct Point3f {
   
   friend std::ostream &operator<<(std::ostream &os, const Point3f &v) {
     os << "("  << v.x << ","  <<  v.y << "," << v.z <<  ")";
+    return os;
   } 
 
 };

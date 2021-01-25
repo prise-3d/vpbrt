@@ -3,7 +3,9 @@
 #include "../viewpoint.hpp"
 #include "../Camera.hpp"
 #include "../Materials/Material.hpp"
+#include "../Materials/Glass.hpp"
 #include "../Materials/Matte.hpp"
+#include "../Materials/Metal.hpp"
 #include "../Materials/Mirror.hpp"
 #include "../Materials/Plastic.hpp"
 #include "../Materials/Uber.hpp"
@@ -29,6 +31,7 @@ PbrtLoader::PbrtLoader(){
   //  pos.x = pos.y = pos.z = 0.0; pos.t = 1.0;
   // cout << pos << " " << vdir << " " << vup << endl; 
   curObj = nullptr;
+  curMat = nullptr;
 }
 
 PbrtLoader::~PbrtLoader(){
@@ -55,8 +58,14 @@ PbrtLoader::~PbrtLoader(){
 Scene *PbrtLoader::load(const string &filename){
   // extraction du chemin d'accès
   size_t end_path = filename.find_last_of('/');
-  string path = filename.substr(0, end_path);
-
+  string path;
+  if(end_path != string::npos)
+    path = filename.substr(0, end_path);
+  else
+    path = ".";
+  
+  cout << "loading " << filename << endl;
+  
   // lecture du fichier
   ifstream in(filename);
 
@@ -66,7 +75,7 @@ Scene *PbrtLoader::load(const string &filename){
 
   string str; // token de lecture
 
-  // cout << pos << " " << vdir << " " << vup << endl; 
+  str = getToken(in);
 
   // analyse du fichier pbrt et reconstruction de la scène
   
@@ -124,8 +133,14 @@ Scene *PbrtLoader::load(const string &filename){
       in >> tx >> ty >> tz;
       Transform mtrans = Translate(tx, ty, tz);
       //ctm = mtrans * ctm;
+      // std::cout << "Translate : avant " << endl;
+      // std::cout << ctm << std::endl;
+      
       ctm = ctm * mtrans;
-
+      
+      // std::cout << "Translate : après " << endl;
+      // std::cout << ctm << std::endl;
+      
       // std::cout << "Translate : " << endl;
       // std::cout << ctm << std::endl;
     }
@@ -135,9 +150,12 @@ Scene *PbrtLoader::load(const string &filename){
       in >> a >> rx >> ry >> rz;
       Transform mrot = Rotate(a, rx, ry, rz);
       //      ctm = mrot * ctm;
+      // std::cout << "Rotate : avant " << endl;
+      // std::cout << ctm << std::endl;
+
       ctm = ctm * mrot;
       
-      // std::cout << "Rotate : " << endl;
+      // std::cout << "Rotate : après " << endl;
       // std::cout << ctm << std::endl;
     }
 
@@ -285,7 +303,6 @@ Scene *PbrtLoader::load(const string &filename){
     if(str=="Include"){
       str = getToken(in);
       string filename(path+"/"+str.substr(1, str.size()-2));
-      // cout << "Include " << filename << endl;
       Scene *incScene = load(filename);
       scene->add(incScene);
     }
@@ -331,7 +348,8 @@ Scene *PbrtLoader::load(const string &filename){
       string type, paramName;
       vector <string> values;
       ParamSet set;
-      
+
+
       while(readParameterList(in, type, paramName, values)){// decoder les paramètres
 	set.addParameters(type, paramName, values);
 	values.clear();
@@ -342,24 +360,45 @@ Scene *PbrtLoader::load(const string &filename){
             
       // ajouter le matériau à la liste des matériaux nommés
       // on ne vérifie pas si le matériaux existe déjà
-      Materials.push_back(mat);
+      materiaux.push_back(mat);
+
+    }
+
+    if(str=="NamedMaterial"){ // assigner le nom du matériau courant
+      // récupérer le nom du matériau de la forme "nom"
+      string name = getToken(in);
+      name = name.substr(1, name.size()-2);
+      // recherche le matériau dans la liste via son nom
+      bool trouve = false;
+      for(int i=0; i<materiaux.size(); i++)
+	if(materiaux[i]->getName() == name){
+	  curMat = materiaux[i];
+	  trouve=true;
+	  break;
+	}
+      if(!trouve){
+	std::cout << "matériau " << name << "non trouvé" << endl;
+	curMat = nullptr;
+      }
     }
 
     // traitement d'un commentaire
     // if(str[0]=='#') getline(in, str);
       
     str=getToken(in);
+
   }
   
 
   in.close();
   // cerr << ctm << endl;
 
-  for(int i=0; i<Materials.size(); i++)
-    cout << *(Materials[i]) << endl;
+  // for(int i=0; i<materiaux.size(); i++)
+  //   cout << *(materiaux[i]) << endl;
   
   return scene;
 }
+
 
 
 // traitement du chargement d'une forme
@@ -372,6 +411,7 @@ void PbrtLoader::loadShape(ifstream &in, const string& path, Scene *scene, Objet
   // traitement des formes
   if(str=="\"plymesh\"") loadPlymesh(in, path, scene, cur);
   else if(str=="\"trianglemesh\"") loadTriangleMesh(in, path, scene, cur);
+  else if(str=="\"cylinder\"") loadCylinder(in, path, scene, cur);
 
   // sinon on passe dans la boucle principale
   
@@ -394,8 +434,10 @@ void PbrtLoader::loadPlymesh(ifstream &in, const string& path, Scene *scene, Obj
   if(name=="filename"){// récupération du nom de fichier
     string filename = path+"/";
     filename += (values[0][0]=='\"') ? values[0].substr(1, values[0].size()-2) : values[0];
-    if(!scene->load_ply(filename.c_str(), ctm, cur)){
-      cout << "error loading " << name << endl;;
+    // cout << "ply : " << filename << endl;
+    if(!scene->load_ply(filename.c_str(), ctm, cur, curMat)){
+      cout << "error loading " << filename << endl;
+      cout << "path = " << path << endl;
     }
     return;
   }	
@@ -417,6 +459,10 @@ void PbrtLoader::loadTriangleMesh(ifstream &in, const string& path, Scene *scene
   vector <string> values;
   
   Mesh *mesh = new Mesh();
+  // ajout du matériel courant
+  mesh->setMaterial(curMat);
+
+  //  cout << "triangles : " << endl;
 
   while(readParameterList(in, type, name, values)){
     if(name=="indices"){// traiter les indices des sommets des triangles
@@ -457,6 +503,37 @@ void PbrtLoader::loadTriangleMesh(ifstream &in, const string& path, Scene *scene
 	
 }
 
+// chargement d'un cylindre
+
+void PbrtLoader::loadCylinder(ifstream &in, const string& path, Scene *scene, Objet *cur){
+  string type, name;
+  vector <string> values;
+  float rayon = 1, zmin =-1, zmax = 1;
+
+  while(readParameterList(in, type, name, values)){
+    if(name=="radius"){// récupérer le rayon
+      rayon = stof(values[0]);
+    }else if(name=="zmin"){// récupérer la base du cylindre
+      zmin = stof(values[0]);
+    }else if(name=="zmax"){// réucpérer le haut du cylindre
+      zmax = stof(values[0]);
+    }else cerr << "cylindre : paramètre " << name << "inconnu" << endl;
+    values.clear();
+
+  }// while
+  
+  Cylindre *cyl = new Cylindre(rayon, zmin, zmax);
+  
+  // appliquer la transformation courante
+  cyl->transform(ctm);
+
+
+  if(!cur) // pas d'objet courant - ajout direct à la scène
+    scene->add(cyl);
+  else
+    cur->addCylindre(cyl);
+}
+
 
 // Lecture d'un triplé représentant une liste de paramètres au format pbrt
 // La liste a toujours le format  "type  name" [ value ou values ]
@@ -467,6 +544,9 @@ bool PbrtLoader::readParameterList(ifstream & in, string &type, string &name, ve
   string str;// tampon de lecture
   
   str=getToken(in); // lecture du type potentiel
+
+  // vérifier qu'il y avait encore des choses à lire
+  if(in.eof()) return false;
   
   if(str[0]!='\"'){// on a pas trouvé un type
     // on se remet avant la lecture pour permettre celle-ci à l'extérieur de la méthode
@@ -512,7 +592,7 @@ bool PbrtLoader::readParameterList(ifstream & in, string &type, string &name, ve
 bool PbrtLoader::readList(ifstream & in, vector<string> &values){
   string str;// tampon de lecture
   
-  // lire la ou les valeurs
+  // lire la ou les valeurs qui est forcément présente
   str=getToken(in);
   // est-ce une liste ?
   if(str[0]=='['){// c'est une liste
@@ -542,13 +622,13 @@ bool PbrtLoader::readList(ifstream & in, vector<string> &values){
 // commençant par un # (commentaire)
 string PbrtLoader::getToken(ifstream &in){
   string str;
-  while(1){
+  in >> str;
+  while((!in.eof()) && (str[0]=='#')){
+    getline(in, str);
     in >> str;
-    if(str[0]=='#') getline(in, str);
-    else return str;
   }
     
-  
+  return str;
 }
 
 
@@ -559,7 +639,7 @@ Material *PbrtLoader::createMaterial(const string &name, const ParamSet &set){
   
   // if(type=="disney") return new Disney(name, set);
   // if(type=="fourier") return new Fourier(name,set);;
-  // if(type=="glass") return new Glass(name, set);
+  if(type[0]=="\"glass\"") return new Glass(name, set);
   // if(type=="hair") return new Hair(name, set);
   // if(type=="kdsubsurface") return new KdSubsurface(name, set);
   if(type[0]=="\"matte\""){
@@ -567,7 +647,7 @@ Material *PbrtLoader::createMaterial(const string &name, const ParamSet &set){
     cout << *m << endl;
     return m;
   }
-  // if(type=="metal") return new Metal(name, set);
+  if(type[0]=="\"metal\"") return new Metal(name, set);
   if(type[0]=="\"mirror\""){
     Mirror *m = new Mirror(name, set);
     cout << *m << endl;

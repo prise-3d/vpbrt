@@ -20,6 +20,10 @@ vector <Mesh*> Objet::getMeshes(){
   return meshes;
 }
 
+vector <Cylindre*> Objet::getCylindres(){
+  return cylindres;
+}
+
 void Objet::addMesh(Mesh *m){
   if(m) meshes.push_back(m);
 }
@@ -27,6 +31,16 @@ void Objet::addMesh(Mesh *m){
 void Objet::addMesh(Mesh *m, const Transform &t){
   if(m){
     meshes.push_back(m);
+  }
+}
+
+void Objet::addCylindre(Cylindre *m){
+  if(m) cylindres.push_back(m);
+}
+
+void Objet::addCylindre(Cylindre *m, const Transform &t){
+  if(m){
+    cylindres.push_back(m);
   }
 }
 
@@ -43,7 +57,18 @@ BoundingBox Objet::getBB(){
     if(bbm.max.y > bb.max.y) bb.max.y = bbm.max.y;
     if(bbm.max.z > bb.max.z) bb.max.z = bbm.max.z;
   }
-
+  
+  for(unsigned int i=0; i<cylindres.size(); i++){
+    // màj de la bounding box de l'objet
+    BoundingBox bbm = cylindres[i]->getBB();
+    if(bbm.min.x < bb.min.x) bb.min.x = bbm.min.x;
+    if(bbm.min.y < bb.min.y) bb.min.y = bbm.min.y;
+    if(bbm.min.z < bb.min.z) bb.min.z = bbm.min.z;
+    if(bbm.max.x > bb.max.x) bb.max.x = bbm.max.x;
+    if(bbm.max.y > bb.max.y) bb.max.y = bbm.max.y;
+    if(bbm.max.z > bb.max.z) bb.max.z = bbm.max.z;
+  }
+  
   return bb;
 }
 
@@ -52,7 +77,8 @@ void Objet::draw(){
 
   for(unsigned int i=0; i<meshes.size(); i++)
     meshes[i]->draw();
-
+  for(unsigned int i=0; i<cylindres.size(); i++)
+    cylindres[i]->draw();
 }
 
 ostream& operator<<(ostream &out, const Objet &obj){
@@ -62,6 +88,9 @@ ostream& operator<<(ostream &out, const Objet &obj){
     out << "mesh " << i << endl;
     out << *(obj.meshes[i]) << endl;
   }
-
+  for(unsigned int i=0; i<obj.cylindres.size(); i++){
+    out << "cylindre " << i << endl;
+    out << *(obj.cylindres[i]) << endl;
+  }
   return out;
 }

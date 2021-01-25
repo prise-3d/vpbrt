@@ -3,6 +3,7 @@
 #include "viewpoint.hpp"
 #include "Geometry/transform.h"
 #include "Camera.hpp"
+#include "Chemin.hpp"
 
 
 #include <iostream>
@@ -21,6 +22,9 @@ extern Vector4 pos;
 extern Vector4 vup;
 
 extern Camera maCamera;
+extern vector<Chemin> chemins;
+extern int curPath;
+extern bool viewCylinder;
 
 //void crossProduct(float* n, float *v1, float *v2);
 
@@ -38,23 +42,31 @@ void displayMenu(){ // affichage des touches utilisateur
   // cout << " a/z  : ouvrir/réduire le fov" << endl;
   // cout << " t/T  : réduire/augmenter le pas de translation" << endl;
   // cout << " r/R  : réduire/augmenter le pas de rotation" << endl;
+  // cout << " r/R  : réduire/augmenter le pas de rotation" << endl;
   // cout << " l/p  : affichage en mode ligne/polygone" << endl;
+  // cout << " s/S  : chemin suivant/précédent" << endl;
+  // cout << " c    : activer/désactiver visu cylindres pbrt" << endl;
   // cout << " F2   : sauver la position actuelle" << endl;
   // cout << " q    : quitter" << endl;
-  cout << "w/x: left/right translation" << endl;
-  cout << "up: moving forward" << endl;
-  cout << "down: move back" << endl;
-  cout << "left: turn left" << endl;
-  cout << "right: turn to the right" << endl;
-  cout << "u/d: raise/lower head" << endl;
-  cout << "=/+: go down/up" << endl;
-  cout << "a/z: open/reduce the fov" << endl;
-  cout << "t/T: reduce/increase the translation pitch" << endl;
-  cout << "r/R: reduce/increase the rotation step" << endl;
-  cout << "r/R: reduce/increase the rotation step" << endl;
-  cout << "l/p: display in line/polygon mode" << endl;
-  cout << "F2: saving the current position" << endl;
-  cout << "q: leave" << endl;
+
+ cout << "Keys to be used : " << endl;
+ cout << "--------------------" << endl;
+ cout << "w/x: left/right translation" << endl;
+ cout << "up: moving forward" << endl;
+ cout << "down: move back" << endl;
+ cout << "left: turn left" << endl;
+ cout << "right: turn to the right" << endl;
+ cout << "u/d: raise/lower head" << endl;
+ cout << "=/+: go down/up" << endl;
+ cout << "a/z: open/reduce the fov" << endl;
+ cout << "t/T: reduce/increase the translation pitch" << endl;
+ cout << "r/R: reduce/increase the rotation step" << endl;
+ cout << "r/R: reduce/increase the rotation step" << endl;
+ cout << "l/p: display in line/polygon mode" << endl;
+ cout << "s/S: next/previous path" << endl;
+ cout << "c: activate/deactivate visu pbrt cylinders" << endl;
+ cout << "F2: saving the current position" << endl;
+ cout << "q: leave" << endl;
 }
 
 void gerer_clavier(unsigned char touche, int x, int y){
@@ -113,6 +125,15 @@ void gerer_clavier(unsigned char touche, int x, int y){
     break;
   case 'l' :
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    break;
+  case 's' :
+    curPath = (curPath+1) % chemins.size();
+    break;
+  case 'S' :
+    curPath = (curPath+chemins.size()-1) % chemins.size();
+    break;
+  case 'c' :
+    viewCylinder = !viewCylinder;
     break;
   case 'q': // tout stopper
     exit(0);

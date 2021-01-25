@@ -16,6 +16,7 @@ Scene::~Scene(){
   objets.clear();
   ltm.clear();
   meshes.clear();
+  cylindres.clear();
 }
 
 void Scene::updateBB(const BoundingBox &bbp){
@@ -44,9 +45,22 @@ void Scene::add(Mesh *m){
   updateBB(m->getBB());
 }
 
+void Scene::add(Cylindre *c){
+  // ajout d'un nouveau cylindre sans transformations
+  // ces transformations sont censées avoir été faites
+  // lors du chargement du cylindre
+  Transform *t = new Transform();
+  t->SetIdentity();
+  ltm.push_back(t);
+  cylindres.push_back(c);
+  // maj de la BB de la scène
+  updateBB(c->getBB());
+}
+
 
 void Scene::add(Mesh *m, Transform *t){
   // ajout du mesh et de sa transformation locale associée
+
   ltm.push_back(t);
   meshes.push_back(m);
   // màj des stats de la scène
@@ -55,6 +69,18 @@ void Scene::add(Mesh *m, Transform *t){
   
   // maj de la BB de la scène
   BoundingBox lbb = m->getBB();
+  lbb.min.transformer(*t);
+  lbb.max.transformer(*t);
+  updateBB(lbb);
+}
+
+void Scene::add(Cylindre *c, Transform *t){
+  // ajout du cylindre et de sa transformation locale associée
+  ltm.push_back(t);
+  cylindres.push_back(c);
+  
+  // maj de la BB de la scène
+  BoundingBox lbb = c->getBB();
   lbb.min.transformer(*t);
   lbb.max.transformer(*t);
   updateBB(lbb);
@@ -88,9 +114,17 @@ void Scene::addInstance(const string &oname, const Transform &t){
   for(int i=0; i<om.size(); i++)
     add(om[i], new Transform(t));
 
+  // ajout des cylindres de l'objet dans la scène
+  vector <Cylindre *> cm = o->getCylindres();
+  
+  for(int i=0; i<cm.size(); i++)
+    add(cm[i], new Transform(t));
+  
+
 }
 
 void Scene::add(Scene *sc){
+  cout << "ajout scène" << endl;
   // ajout des objets nommés
   for(int i=0; i<sc->objets.size(); i++){
     objets.push_back(sc->objets[i]);
@@ -103,12 +137,20 @@ void Scene::add(Scene *sc){
     meshes.push_back(sc->meshes[i]);
   }
 
+  // ajout des cylindres visibles et leur ltm
+  for(int i=0; i<sc->cylindres.size(); i++){
+    ltm.push_back(sc->ltm[i]);
+    cylindres.push_back(sc->cylindres[i]);
+  }
+
+
   // màj des stat de la scène
   nbFaces += sc->nbFaces;
   nbSommets += sc->nbSommets;
 
     // maj de la BB de la scène
   updateBB(sc->getBB());
+  cout << "fin ajout scène" << endl;
 }
 
 
@@ -129,6 +171,12 @@ ostream& operator<<(ostream &out, const Scene &sc){
   for(int i=0; i<sc.meshes.size(); i++){
     out << *(sc.meshes[i]);
   }
+
+  out << "=== Cylindres ===" << endl;
+
+  for(int i=0; i<sc.cylindres.size(); i++){
+    out << *(sc.cylindres[i]);
+  } 
     // calcul de la bounding box de la scène
   //   BoundingBox bbm = sc.objets[i]->getBB();
   //   if(bbm.min.x < bb.min.x) bb.min.x = bbm.min.x;
@@ -150,14 +198,6 @@ ostream& operator<<(ostream &out, const Scene &sc){
 }
 
 
-// static void transformer(Point3f &s){
-//   Vector4 v(s.x, s.y, s.z, 1);
-//   v = curCtm * v;
-//   v.x = v.x / v.t;
-//   v.y = v.y / v.t;
-//   v.z = v.z / v.t;
-//   s.x = v.x; s.y = v.y; s.z = v.z;
-// }
 
 static int vertex_cb(p_ply_argument argument) {
   long eol;
@@ -201,7 +241,7 @@ static int face_cb(p_ply_argument argument) {
     return 1;
 }
 
-bool Scene::load_ply(const char *filename, const Transform &ctm, Objet *cur){
+bool Scene::load_ply(const char *filename, const Transform &ctm, Objet *cur, Material *mat){
 
   curCtm = ctm;
 
@@ -224,6 +264,7 @@ bool Scene::load_ply(const char *filename, const Transform &ctm, Objet *cur){
   }
   ply_close(ply);
 
+  tmpMesh->setMaterial(mat);
   if(!cur) // pas d'objet courant - ajout direct à la scène
     add(tmpMesh);
   else
@@ -248,7 +289,7 @@ void Scene::draw(){
       if(ltm[i]->IsIdentity())
 	meshes[i]->draw();
       else
-	meshes[i]->draw(*(ltm[i]));
+	meshes[i]->draw(*(ltm[i]));    
   }else{
     for(unsigned int i=0; i<meshes.size(); i++)
       if(ltm[i]->IsIdentity()){
@@ -263,9 +304,69 @@ void Scene::draw(){
 	  meshes[i]->drawBB(*(ltm[i]));
       }
   }
+
+  // dessin des cylindres
+
+  for(unsigned int i=0; i<cylindres.size(); i++)
+    if(ltm[i]->IsIdentity())
+      cylindres[i]->draw();
+    else{
+      cylindres[i]->draw(*(ltm[i]));
+    }
   
 }
 
+void Scene::draw(bool viewCylinder){
+  if(nbFaces < 10000000){
+    for(unsigned int i=0; i<meshes.size(); i++)
+      if(ltm[i]->IsIdentity())
+	meshes[i]->draw();
+      else
+	meshes[i]->draw(*(ltm[i]));    
+  }else{
+    for(unsigned int i=0; i<meshes.size(); i++)
+      if(ltm[i]->IsIdentity()){
+	if(meshes[i]->getNbFaces() < 100)
+	  meshes[i]->draw();
+	else
+	  meshes[i]->drawBB();
+      }else{
+	if(meshes[i]->getNbFaces() < 100)
+	  meshes[i]->draw(*(ltm[i]));
+	else
+	  meshes[i]->drawBB(*(ltm[i]));
+      }
+  }
+
+  if(!viewCylinder) return;
+  
+  // dessin des cylindres
+
+  // std::cout << "CYLINDRES = " << cylindres.size() << std::endl;
+  // prendre en compte le fait que le tableau de transformations
+  // géométriques ltm est commun à tous les objets
+  int decalage=meshes.size();
+  
+  for(unsigned int i=0; i<cylindres.size(); i++)
+    if(ltm[i+decalage]->IsIdentity()){
+      cylindres[i]->draw();
+      // std::cout << "cylindre I" << i << *(cylindres[i]) << std::endl;
+    } else{
+      cylindres[i]->draw(*(ltm[i+decalage]));
+      // std::cout << "cylindre T" << i << *(cylindres[i]) << std::endl;
+      // cout << "c" << flush;
+    }
+  // cout << " " << flush;
+}
+
+
+void Scene::printCylinders(){
+  cout << "------ CYLINDRES -----" << endl;
+  for(unsigned int i=0; i<cylindres.size(); i++)
+    cout << "c" << i <<  " : " << *(cylindres[i]) << endl;
+  cout << "----------------------" << endl;
+
+}
 
 bool Scene::isInsideBB(const Point3f &p){
   if(p.x < bb.min.x || p.x > bb.max.x) return false;
@@ -276,10 +377,12 @@ bool Scene::isInsideBB(const Point3f &p){
 
 
 void Scene::printStats(){
-  cout << "STATISTIcS : " << endl;
-  cout << " - nb faces = " << nbFaces << endl;
-  cout << " - nb vectices = " << nbSommets << endl;
+  cout << "STATISTICS: " << endl;
+  cout << " - nb facets = " << nbFaces << endl;
+  cout << " - nb vertices = " << nbSommets << endl;
   cout << " - nb meshes = " << meshes.size() << endl;
-  cout << "Mean number of faces / mesh = " << nbFaces/meshes.size() << endl;
+  cout << " - nb cylinders = " << cylindres.size() << endl;
+  if(meshes.size()) 
+    cout << "mean number: facets / mesh = " << nbFaces/meshes.size() << endl;
 }
 

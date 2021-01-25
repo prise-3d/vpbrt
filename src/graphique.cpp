@@ -4,10 +4,13 @@
 #include "Geometry/Scene.hpp"
 #include "interactions.hpp"
 #include "Camera.hpp"
+#include "Chemin.hpp"
 
 extern Scene *curScene;
 extern Camera maCamera;
-
+extern vector<Chemin> chemins;
+extern int curPath;
+extern bool viewCylinder;
 
 /** 
  * Fonction permettant de dessiner le repère du monde sous 
@@ -100,7 +103,7 @@ void dessiner(void){
   gluLookAt(o[0], o[1], o[2], v[0], v[1], v[2], up[0], up[1], up[2]);
 
     /* dessin des objets */
-  repere(2.0);
+  // repere(2.0);
 
   glColor3f(1.0, 1.0, 1.0);
 
@@ -109,10 +112,13 @@ void dessiner(void){
       glColor3f(1.0, 1.0, 1.0);
     else
       glColor3f(1.0, 0.0, 0.0);
-    curScene->draw();
+    curScene->draw(viewCylinder);
   }
 
-			    
+
+  if(curPath>=0){
+    chemins[curPath].draw(1.0, 0.0, 0.0);
+  }
   
   glFlush();
 

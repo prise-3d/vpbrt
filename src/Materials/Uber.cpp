@@ -63,7 +63,7 @@ Uber::Uber(const string &name, const ParamSet &set)
       glmat.ks.b = stof(values[2]);
       *Ks = glmat.ks;
     } else
-      cout << "Uber : type " << type << "non géré" << endl;
+      cout << "Uber (ks) : type " << type << " non géré" << endl;
   }
   
   // recherche les valeurs de kd dans set
@@ -77,7 +77,7 @@ Uber::Uber(const string &name, const ParamSet &set)
       glmat.kd.b = stof(values[2]);
       *Kd = glmat.kd;
     } else
-      cout << "Uber : type " << type << "non géré" << endl;
+      cout << "Uber (kd) : type " << type << " non géré" << endl;
   }
 
   // recherche les valeurs de roughness dans set
@@ -89,7 +89,7 @@ Uber::Uber(const string &name, const ParamSet &set)
       roughness = stof(values[0]);
       glmat.shininess = 10/roughness;
     }else
-      cout << "Uber : type " << type << "non géré" << endl;
+      cout << "Uber (rough) : type " << type << " non géré" << endl;
   }
   // on ne s'intéresse pas ici au reste
 }

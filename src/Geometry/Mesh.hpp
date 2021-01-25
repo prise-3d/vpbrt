@@ -6,6 +6,8 @@
 using namespace std;
 
 #include "../Geometry/transform.h"
+#include "../Materials/Material.hpp"
+#include "BoundingBox.hpp"
 
 // struct Sommet {
 //   float x, y, z;
@@ -18,15 +20,14 @@ struct Face {
   int isom[3];
 };
 
-struct BoundingBox {
-  Point3f min, max;
-};
+
 	    
 class Mesh {
 private:
   vector <Point3f> sommets;
   vector <Face> faces;
   BoundingBox bb;
+  Material *mat;
 
 public:
   Mesh();
@@ -42,6 +43,10 @@ public:
 
   void drawBB();
   void drawBB(const Transform &t);
+
+  void setMaterial(Material *m) { mat = m; }
+  GLmaterial getGLmaterial();
+  
 
   inline int getNbFaces(){ return faces.size(); }
   inline int getNbSommets(){ return sommets.size(); }

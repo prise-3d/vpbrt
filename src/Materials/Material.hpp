@@ -11,11 +11,13 @@ using namespace std;
 // enum MAT_VALUE {UNKNOWN, DISNEY, FOURIER, GLASS, HAIR, KDSUBURFACE, MATTE, METAL,
 // 		  MIRROR, MIX, NONE, PLASTIC, SUBSTRATE, SUBSURFACE, TRANSLUCENT, UBER};
 
+// http://devernay.free.fr/cours/opengl/materials.html
+
 // définition des structures utiles pour représenter les matériaux opengl
 struct coeff {
-  float r, g, b;
-  coeff(){}
-  coeff(float r, float g, float b) : r(r), g(g), b(b) {}
+  float r, g, b, a;
+  coeff(){ a = 1.0;}
+  coeff(float r, float g, float b, float a=1.0) : r(r), g(g), b(b), a(a) {}
 };
 
 struct GLmaterial {
