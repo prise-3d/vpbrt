@@ -33,6 +33,6 @@ Metal::Metal(const string &name, const ParamSet &set)
 
 ostream& operator<<(ostream &out, const Metal &m){
   const Material *pm = &m;
-  out << "materiau metal " << *pm;
+  out << "material metal " << *pm;
   return out;
 }

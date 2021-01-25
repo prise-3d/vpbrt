@@ -54,8 +54,19 @@ void Chemin::draw(Color c){
   glBegin(GL_LINE_STRIP);
   
   for(int i=0; i< sommets.size(); i++){
-    if(i==0) glColor3f(0.0, 0.0, 1.0);
-    else glColor3f(c.r, c.g, c.b);
+
+    // first point (camera to first hit position)
+    if(i==0) glColor3f(0.0, 1.0, 0.0);
+    else {
+
+      // ray color depending of luminance contribution
+      if (luminances[i - 1].r < limit && luminances[i - 1].g < limit && luminances[i - 1].b < limit) {
+        glColor3f(0.0, 0.0, 1.0); 
+      }
+      else {
+        glColor3f(1.0, 0.0, 0.0); 
+      }
+    }
     glVertex3f(sommets[i].x, sommets[i].y, sommets[i].z);
   }
 

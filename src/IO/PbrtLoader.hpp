@@ -29,8 +29,8 @@ private :
   // liste des systèmes de coordonnées nommés
   vector <SysCoord *> sysCoord;
   // liste des matériaux nommés
-  vector <Material *> materiaux;
-  // materiau courant
+  vector <Material *> materials;
+  // material courant
   Material *curMat;
   
 public:

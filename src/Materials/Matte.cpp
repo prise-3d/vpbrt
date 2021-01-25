@@ -50,6 +50,6 @@ Matte::Matte(const string &name, const ParamSet &set)
 
 ostream& operator<<(ostream &out, const Matte &m){
   const Material *pm = &m;
-  out << "materiau matte " << *pm;
+  out << "material matte " << *pm;
   return out;
 }

@@ -360,7 +360,7 @@ Scene *PbrtLoader::load(const string &filename){
             
       // ajouter le matériau à la liste des matériaux nommés
       // on ne vérifie pas si le matériaux existe déjà
-      materiaux.push_back(mat);
+      materials.push_back(mat);
 
     }
 
@@ -370,14 +370,14 @@ Scene *PbrtLoader::load(const string &filename){
       name = name.substr(1, name.size()-2);
       // recherche le matériau dans la liste via son nom
       bool trouve = false;
-      for(int i=0; i<materiaux.size(); i++)
-	if(materiaux[i]->getName() == name){
-	  curMat = materiaux[i];
+      for(int i=0; i<materials.size(); i++)
+	if(materials[i]->getName() == name){
+	  curMat = materials[i];
 	  trouve=true;
 	  break;
 	}
       if(!trouve){
-	std::cout << "matériau " << name << "non trouvé" << endl;
+	std::cout << "material " << name << "not found" << endl;
 	curMat = nullptr;
       }
     }
@@ -393,8 +393,8 @@ Scene *PbrtLoader::load(const string &filename){
   in.close();
   // cerr << ctm << endl;
 
-  // for(int i=0; i<materiaux.size(); i++)
-  //   cout << *(materiaux[i]) << endl;
+  // for(int i=0; i<materials.size(); i++)
+  //   cout << *(materials[i]) << endl;
   
   return scene;
 }

@@ -80,7 +80,7 @@ Plastic::Plastic(const string &name, const ParamSet &set)
 
 ostream& operator<<(ostream &out, const Plastic &m){
   const Material *pm = &m;
-  out << "materiau mirror " << *pm;
+  out << "material mirror " << *pm;
 
   return out;
 }

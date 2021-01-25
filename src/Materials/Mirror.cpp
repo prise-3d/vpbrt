@@ -47,7 +47,7 @@ Mirror::Mirror(const string &name, const ParamSet &set)
 
 ostream& operator<<(ostream &out, const Mirror &m){
   const Material *pm = &m;
-  out << "materiau mirror " << *pm;
+  out << "material mirror " << *pm;
   out << " " << m.glmat.ks.r << " " << m.glmat.ks.g << " " << m.glmat.ks.b << "   " << m.glmat.shininess << endl;
   return out;
 }

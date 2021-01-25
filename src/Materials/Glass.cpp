@@ -41,6 +41,6 @@ Glass::Glass(const string &name, const ParamSet &set)
 
 ostream& operator<<(ostream &out, const Glass &m){
   const Material *pm = &m;
-  out << "materiau glass " << *pm;
+  out << "material glass " << *pm;
   return out;
 }

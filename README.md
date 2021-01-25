@@ -16,32 +16,35 @@ make -j
 
 ### Use generated binary 
 ```bash
-./vpbrt ./path/to/scene.pbrt 
+./vpbrt -f ./path/to/scene.pbrt 
 ```
 
 ### Overview
 
 <p align="center">
-   <img src="overview/bunny.gif" width="450px">
+   <img src="overview/villa.gif" width="450px">
 </p>
 
 ### Commands
 
 ```
- w/x: left/right translation
- up: moving forward
- down: move back
- left: turn left
- right: turn to the right
- u/d: raise/lower head
- =/+: go down/up
- a/z: open/reduce the fov
- t/T: reduce/increase the translation pitch
- r/R: reduce/increase the rotation step
- r/R: reduce/increase the rotation step
- l/p: display in line/polygon mode
- F2: saving the current position
- q: leave
+w/x: left/right translation
+up: moving forward
+down: move back
+left: turn left
+right: turn to the right
+u/d: raise/lower head
+=/+: go down/up
+a/z: open/reduce the fov
+t/T: reduce/increase the translation pitch
+r/R: reduce/increase the rotation step
+r/R: reduce/increase the rotation step
+l/p: display in line/polygon mode
+s/S: next/previous path
+c: activate/deactivate visu pbrt cylinders
+F2: saving the current position
+q: leave
+
 ```
 
 **Note:** current position is saved into `camera_X.txt` file when using `F2`.

@@ -98,7 +98,7 @@ Uber::Uber(const string &name, const ParamSet &set)
 
 ostream& operator<<(ostream &out, const Uber &m){
   const Material *pm = &m;
-  out << "materiau Uber " << *pm;
+  out << "material Uber " << *pm;
 
   return out;
 }
