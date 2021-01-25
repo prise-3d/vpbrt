@@ -115,9 +115,9 @@ void dessiner(void){
     curScene->draw(viewCylinder);
   }
 
-
-  if(curPath>=0){
-    chemins[curPath].draw(1.0, 0.0, 0.0);
+  // TODO: check draw there
+  if(curPath >= 0){
+    chemins[curPath].draw(Color(1.0, 0.0, 0.0));
   }
   
   glFlush();

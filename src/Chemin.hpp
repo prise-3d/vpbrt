@@ -8,6 +8,12 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
+struct Color {
+    float r, g, b;
+    Color() { r=g=b=0; }
+    Color(float r, float g, float b) : r(r), g(g), b(b) {}
+};
+
 struct Point {
   float x, y, z;
 };
@@ -15,8 +21,9 @@ struct Point {
 class Chemin {
 public:
   int x, y; // pixel initial du chemin
-  float r, g, b; // luminance du chemin
+  Color l; // luminance du chemin
   std::vector <Point> sommets; // sommets du chemin
+  std::vector<Color> luminances; // luminances acquises
 
   Chemin(){};
 
@@ -26,9 +33,14 @@ public:
   void clear(){ sommets.clear(); }
 
 
-  void draw(float r, float g, float b);
+  void draw(Color c);
   
   friend std::ostream& operator<<(std::ostream& out, const Chemin& path);
+
+private:
+
+  // set limit to change display of cylinder material
+  float limit = 10000;
 
 };
 

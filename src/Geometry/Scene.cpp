@@ -124,7 +124,7 @@ void Scene::addInstance(const string &oname, const Transform &t){
 }
 
 void Scene::add(Scene *sc){
-  cout << "ajout scène" << endl;
+  cout << "Start loading scene" << endl;
   // ajout des objets nommés
   for(int i=0; i<sc->objets.size(); i++){
     objets.push_back(sc->objets[i]);
@@ -150,7 +150,7 @@ void Scene::add(Scene *sc){
 
     // maj de la BB de la scène
   updateBB(sc->getBB());
-  cout << "fin ajout scène" << endl;
+  cout << "End loading scene" << endl;
 }
 
 
