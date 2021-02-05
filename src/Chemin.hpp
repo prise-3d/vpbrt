@@ -40,7 +40,7 @@ public:
 private:
 
   // set limit to change display of cylinder material
-  float limit = 10000;
+  float limit = 1000;
 
 };
 

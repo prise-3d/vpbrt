@@ -51,13 +51,27 @@ bool Chemin::readPath(std::ifstream &in){
 
 void Chemin::draw(Color c){
 
+  std::cout << "==============================================================" << std::endl;
+  std::cout << "Display new path of pixel (" << x << ", " << y << ")" << std::endl;
+  std::cout << "==============================================================" << std::endl;
+  std::cout << "Sum of luminance is: L(" << l.r << ", " << l.g << ", " << l.b << ")" << std::endl;
+  std::cout << "Number of bounds is: " << sommets.size() - 1 << std::endl;
+
   glBegin(GL_LINE_STRIP);
   
   for(int i=0; i< sommets.size(); i++){
 
     // first point (camera to first hit position)
-    if(i==0) glColor3f(0.0, 1.0, 0.0);
+    if(i==0) { 
+      glColor3f(0.0, 1.0, 0.0);
+        std::cout << "Camera position is: (" << sommets[i].x << ", " << sommets[i].y << ", " << sommets[i].z << ")" << std::endl;
+        std::cout << "--------------------------------------------------------------" << std::endl;
+
+    }
     else {
+
+        std::cout << "Bound n°" << (i) << ": x(" << sommets[i].x << ", " << sommets[i].y << ", " << sommets[i].z << ")" << std::endl;
+        std::cout << "   - L(" << luminances[i - 1].r << ", " << luminances[i - 1].g << ", " << luminances[i - 1].b << ")" << std::endl;
 
       // ray color depending of luminance contribution
       if (luminances[i - 1].r < limit && luminances[i - 1].g < limit && luminances[i - 1].b < limit) {
@@ -67,8 +81,11 @@ void Chemin::draw(Color c){
         glColor3f(1.0, 0.0, 0.0); 
       }
     }
+    glLineWidth(10.0);
     glVertex3f(sommets[i].x, sommets[i].y, sommets[i].z);
   }
+
+  std::cout << "==============================================================" << std::endl;
 
   glEnd();
 }
