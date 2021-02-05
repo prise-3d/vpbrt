@@ -5,7 +5,10 @@ bool Chemin::readPath(std::ifstream &in){
 
   // récupération éventuelle des coordonnées du pixel
   in >> x >> k >> y >> k;
+  
   if(in.eof()) return false;
+
+  in >> rayWeight >> k; // récupération du point du rayon
 
   std::cout << "==============================================================================" << std::endl;
   std::cout << "Origin(" << x << ", " << y << ")" << std::endl;
@@ -49,10 +52,14 @@ bool Chemin::readPath(std::ifstream &in){
 
 void Chemin::draw(Color c){
 
+  std::cout << std::endl;
+  std::cout << std::endl;
   std::cout << "==============================================================" << std::endl;
   std::cout << "Display new path of pixel (" << x << ", " << y << ")" << std::endl;
   std::cout << "==============================================================" << std::endl;
+  std::cout << "RayWeight is: " << rayWeight << std::endl;
   std::cout << "Sum of luminance is: L(" << l.r << ", " << l.g << ", " << l.b << ")" << std::endl;
+  std::cout << "Sum of luminance with PDF is: L(" << l.r * rayWeight << ", " << l.g * rayWeight << ", " << l.b * rayWeight << ")" << std::endl;
   std::cout << "Number of bounds is: " << sommets.size() - 1 << std::endl;
 
   glBegin(GL_LINE_STRIP);

@@ -20,6 +20,7 @@ struct Point {
 
 class Chemin {
 public:
+  float rayWeight;
   int x, y; // pixel initial du chemin
   Color l; // luminance du chemin
   std::vector <Point> sommets; // sommets du chemin
