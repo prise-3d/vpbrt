@@ -193,14 +193,16 @@ void loadPaths(std::string pathDirName, std::vector<Chemin> &chemins){
        Chemin path;
        ifstream in(filename.c_str());
        if(!in.is_open()){
-	 std::cout << "reading error " << filename << std::endl;
-       }else{
-	 while(path.readPath(in)){
-	   // std::cout << path << std::endl;
-	   chemins.push_back(path);
-	   path.clear();
-	 }
-	 in.close();
+          std::cout << "reading error " << filename << std::endl;
+        }else{
+
+          std::string line;
+          while(path.readPath(in)){
+            // std::cout << path << std::endl;
+            chemins.push_back(path);
+            path.clear();
+          }
+        in.close();
        }
 	 
     }

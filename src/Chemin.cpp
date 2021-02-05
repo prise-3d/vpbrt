@@ -47,8 +47,6 @@ bool Chemin::readPath(std::ifstream &in){
 }
 
 
-
-
 void Chemin::draw(Color c){
 
   std::cout << "==============================================================" << std::endl;
@@ -58,6 +56,7 @@ void Chemin::draw(Color c){
   std::cout << "Number of bounds is: " << sommets.size() - 1 << std::endl;
 
   glBegin(GL_LINE_STRIP);
+
   
   for(int i=0; i< sommets.size(); i++){
 
@@ -81,6 +80,7 @@ void Chemin::draw(Color c){
         glColor3f(1.0, 0.0, 0.0); 
       }
     }
+
     glLineWidth(10.0);
     glVertex3f(sommets[i].x, sommets[i].y, sommets[i].z);
   }

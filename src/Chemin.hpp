@@ -30,7 +30,7 @@ public:
   inline int size(){return sommets.size();}
 
   bool readPath(std::ifstream &in);
-  void clear(){ sommets.clear(); }
+  void clear(){ sommets.clear(); luminances.clear(); }
 
 
   void draw(Color c);
