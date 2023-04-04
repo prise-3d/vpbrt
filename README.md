@@ -6,6 +6,13 @@ This pbrt viewer allows the extraction of camera information relative to the cur
 
 ## How to use ?
 
+### Install dependencies
+
+Example for Ubuntu:
+```
+mesa-utils libglm-dev freeglut3-dev
+```
+
 ### Build the project
 ```
 mkdir build
